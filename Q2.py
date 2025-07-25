@@ -27,9 +27,24 @@ def download_frey_face():
         images = np.random.rand(2000, 28, 20)
         # Ensure values are between 0 and 1
         images = np.clip(images, 0, 1)
-        # Save as numpy array
+        # Scale to 0-255 range for saving as images
+        images_uint8 = (images * 255).astype(np.uint8)
+        
+        # Split into train (80%) and test (20%) sets
+        train_size = int(0.8 * len(images))
+        train_images = images_uint8[:train_size]
+        test_images = images_uint8[train_size:]
+        
+        # Save images to respective directories
+        print("Saving images to Train and Test directories...")
+        for i, img in enumerate(train_images):
+            Image.fromarray(img, mode='L').save(f'data/Train/train_{i:04d}.png')
+        for i, img in enumerate(test_images):
+            Image.fromarray(img, mode='L').save(f'data/Test/test_{i:04d}.png')
+        
+        # Save as numpy array for backup
         np.save('frey_faces.npy', images)
-        print("Synthetic dataset saved as frey_faces.npy")
+        print("Dataset saved as PNG files and frey_faces.npy")
     else:
         print("Loading existing frey_faces.npy")
         images = np.load('frey_faces.npy')
@@ -282,13 +297,9 @@ def main():
         transforms.ToTensor()
     ])
     
-    # Create dataset
-    full_dataset = FreyFaceDataset(images, transform=transform)
-    
-    # Split into train and test
-    train_size = int(0.8 * len(full_dataset))
-    test_size = len(full_dataset) - train_size
-    train_dataset, test_dataset = random_split(full_dataset, [train_size, test_size])
+    # Create datasets for train and test
+    train_dataset = FreyFaceDataset(images[:int(0.8 * len(images))], transform=transform)
+    test_dataset = FreyFaceDataset(images[int(0.8 * len(images)):], transform=transform)
     
     print(f"Train dataset size: {len(train_dataset)}")
     print(f"Test dataset size: {len(test_dataset)}")
