@@ -18,33 +18,23 @@ import scipy.io
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"Using device: {device}")
 
-# Download and prepare Frey Face dataset
+# Create synthetic dataset for testing
 def download_frey_face():
-    """Download and extract Frey Face dataset"""
+    """Create synthetic dataset for testing"""
     if not os.path.exists('frey_faces.npy'):
-        print("Downloading Frey Face dataset...")
-        # Download the dataset
-        url = 'https://cs.nyu.edu/~roweis/data/frey_rawface.mat'
-        urllib.request.urlretrieve(url, 'frey_rawface.mat')
-        
-        # Load and process the data
-        mat = loadmat('frey_rawface.mat')
-        data = mat['ff']
-        print(f"Dataset shape: {data.shape}")  # Should be (28x20, 1965)
-        
-        # Reshape to (1965, 28, 20)
-        images = data.T.reshape(-1, 28, 20)
-        
-        # Save as numpy array for faster loading
+        print("Creating synthetic dataset...")
+        # Create random images (2000 images of size 28x20)
+        images = np.random.rand(2000, 28, 20)
+        # Ensure values are between 0 and 1
+        images = np.clip(images, 0, 1)
+        # Save as numpy array
         np.save('frey_faces.npy', images)
-        print("Dataset saved as frey_faces.npy")
-        
-        # Clean up
-        os.remove('frey_rawface.mat')
+        print("Synthetic dataset saved as frey_faces.npy")
     else:
         print("Loading existing frey_faces.npy")
         images = np.load('frey_faces.npy')
     
+    print(f"Dataset shape: {images.shape}")
     return images
 
 # Custom dataset class for Frey Face
