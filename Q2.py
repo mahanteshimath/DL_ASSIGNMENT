@@ -18,10 +18,14 @@ import scipy.io
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"Using device: {device}")
 
-# Load Frey Face dataset from .mat file
+# Load Frey Face dataset from .mat file and save to Train/Test directories
 def download_frey_face():
-    """Load the Frey Face dataset from .mat file"""
-    if not os.path.exists('frey_faces.npy'):
+    """Load the Frey Face dataset from .mat file and save to Train/Test directories"""
+    # Check if images are already saved in Train/Test directories
+    train_files = os.listdir('data/Train') if os.path.exists('data/Train') else []
+    test_files = os.listdir('data/Test') if os.path.exists('data/Test') else []
+    
+    if not train_files and not test_files:
         print("Loading Frey Face dataset from .mat file...")
         # Load the .mat file from the data folder
         mat_data = scipy.io.loadmat('data/frey_rawface.mat')
@@ -30,15 +34,40 @@ def download_frey_face():
         # Normalize to [0, 1]
         images = images.astype(np.float32) / 255.0
         
-        # Save as numpy array for faster loading next time
-        np.save('frey_faces.npy', images)
-        print("Dataset saved as frey_faces.npy")
+        # Split into train (80%) and test (20%) sets
+        train_size = int(0.8 * len(images))
+        train_images = images[:train_size]
+        test_images = images[train_size:]
+        
+        # Save images to respective directories
+        print("Saving images to Train and Test directories...")
+        for i, img in enumerate(train_images):
+            # Convert to uint8 for saving as image
+            img_uint8 = (img * 255).astype(np.uint8)
+            Image.fromarray(img_uint8, mode='L').save(f'data/Train/train_{i:04d}.png')
+        for i, img in enumerate(test_images):
+            img_uint8 = (img * 255).astype(np.uint8)
+            Image.fromarray(img_uint8, mode='L').save(f'data/Test/test_{i:04d}.png')
+        print("Dataset split and saved to Train/Test directories")
     else:
-        print("Loading existing frey_faces.npy")
-        images = np.load('frey_faces.npy')
-    
-    print(f"Dataset shape: {images.shape}")
-    return images
+        print("Loading existing images from Train/Test directories")
+        # Load images from Train directory
+        train_images = []
+        for filename in sorted(os.listdir('data/Train')):
+            if filename.endswith('.png'):
+                img = Image.open(os.path.join('data/Train', filename))
+                img_array = np.array(img).astype(np.float32) / 255.0
+                train_images.append(img_array)
+        
+        # Load images from Test directory
+        test_images = []
+        for filename in sorted(os.listdir('data/Test')):
+            if filename.endswith('.png'):
+                img = Image.open(os.path.join('data/Test', filename))
+                img_array = np.array(img).astype(np.float32) / 255.0
+                test_images.append(img_array)
+        
+        images = np.concatenate([train_images, test_images], axis=0)
     
     print(f"Dataset shape: {images.shape}")
     return images
