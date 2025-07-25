@@ -18,36 +18,27 @@ import scipy.io
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"Using device: {device}")
 
-# Create synthetic dataset for testing
+# Load Frey Face dataset from .mat file
 def download_frey_face():
-    """Create synthetic dataset for testing"""
+    """Load the Frey Face dataset from .mat file"""
     if not os.path.exists('frey_faces.npy'):
-        print("Creating synthetic dataset...")
-        # Create random images (2000 images of size 28x20)
-        images = np.random.rand(2000, 28, 20)
-        # Ensure values are between 0 and 1
-        images = np.clip(images, 0, 1)
-        # Scale to 0-255 range for saving as images
-        images_uint8 = (images * 255).astype(np.uint8)
+        print("Loading Frey Face dataset from .mat file...")
+        # Load the .mat file from the data folder
+        mat_data = scipy.io.loadmat('data/frey_rawface.mat')
+        # Get the faces array (1965 faces of size 20x28) and reshape
+        images = mat_data['ff'].T.reshape(-1, 28, 20)
+        # Normalize to [0, 1]
+        images = images.astype(np.float32) / 255.0
         
-        # Split into train (80%) and test (20%) sets
-        train_size = int(0.8 * len(images))
-        train_images = images_uint8[:train_size]
-        test_images = images_uint8[train_size:]
-        
-        # Save images to respective directories
-        print("Saving images to Train and Test directories...")
-        for i, img in enumerate(train_images):
-            Image.fromarray(img, mode='L').save(f'data/Train/train_{i:04d}.png')
-        for i, img in enumerate(test_images):
-            Image.fromarray(img, mode='L').save(f'data/Test/test_{i:04d}.png')
-        
-        # Save as numpy array for backup
+        # Save as numpy array for faster loading next time
         np.save('frey_faces.npy', images)
-        print("Dataset saved as PNG files and frey_faces.npy")
+        print("Dataset saved as frey_faces.npy")
     else:
         print("Loading existing frey_faces.npy")
         images = np.load('frey_faces.npy')
+    
+    print(f"Dataset shape: {images.shape}")
+    return images
     
     print(f"Dataset shape: {images.shape}")
     return images
