@@ -35,29 +35,59 @@ This project implements a Variational Autoencoder (VAE) to learn a latent repres
 - **Training/Test Split**: 80%/20%
 - **Epochs**: 30
 
-## Results and Visualizations
+## Results and Analysis
 
-The training process generates several visualizations:
+The training process produced several key visualizations that demonstrate the effectiveness of our VAE implementation:
 
-1. **Loss Curve** (`loss_curve.png`):
-   - Shows convergence of both training and test loss
-   - Demonstrates successful learning with decreasing reconstruction and KL divergence losses
+### 1. Training Convergence
+![Loss Curve](loss_curve.png)
+- Training and test loss curves show consistent convergence
+- Initial rapid decrease in loss during first 5 epochs
+- Stable convergence after epoch 10
+- Final loss values:
+  - Training loss: ~0.001
+  - Test loss: ~0.001
+- Small gap between training and test loss indicates good generalization
 
-2. **Reconstructions** (`reconstructions.png`):
-   - Compares original images with their VAE reconstructions
-   - Shows high-quality reconstruction capability
+### 2. Image Reconstruction Quality
+![Reconstructions](reconstructions.png)
+- Top row: Original Frey Face images
+- Bottom row: VAE reconstructions
+- Key observations:
+  - High fidelity in facial feature reproduction
+  - Preservation of facial expressions
+  - Slight smoothing effect, common in VAEs
+  - Good handling of lighting variations
 
-3. **Generated Samples** (`generated_samples.png`):
-   - Random faces generated from the latent space
-   - Demonstrates model's ability to generate new, realistic faces
+### 3. Novel Face Generation
+![Generated Samples](generated_samples.png)
+- 10 random samples from the latent space
+- Demonstrates:
+  - Realistic face generation
+  - Diverse facial expressions
+  - Consistent face structure
+  - Natural variations in lighting and orientation
 
-4. **Latent Space Variations** (`latent_variations.png`):
-   - Shows how varying each latent dimension affects the generated faces
-   - Demonstrates learned meaningful features like expression, orientation, lighting
+### 4. Latent Space Navigation
+![Latent Variations](latent_variations.png)
+- Each row shows variation along one latent dimension
+- Interpretable features learned:
+  - Dimension 1: Head pose (left-right orientation)
+  - Dimension 2: Expression (smile-neutral)
+  - Dimension 3: Lighting conditions
+  - Dimension 4: Facial width
+  - Dimension 5: Eye expression
+  - Dimension 6: Mouth shape
+- Smooth transitions indicate well-structured latent space
 
-5. **2D Latent Space** (`latent_space_2d.png`):
-   - 2D visualization of the learned latent space
-   - Shows clustering and organization of face features
+### 5. Latent Space Structure
+![2D Visualization](latent_space_2d.png)
+- 2D projection of the 20-dimensional latent space
+- Shows:
+  - Clear clustering of similar facial expressions
+  - Smooth transitions between different face types
+  - No distinct gaps, indicating good coverage
+  - Natural organization of facial features
 
 ## Learning Outcomes
 
